@@ -78,9 +78,12 @@ frontier (qualified) and 600 are dominated (failing). Hinge
 widths were computed for the whole frontier two independent ways
 with agreement on a sample of one thousand: width 1: 5,640;
 2: 22,134; 3: 47,196; 4: 59,748; 5: 46,200; 6: 21,654; 7: 5,892;
-8: 840; 9: 48. The frontier instrument now reports the width
-beside every verdict, and the 5,640 width-one assignments carry
-a standing warning.
+8: 840; 9: 48. A companion tool in the frontier instrument's
+ordering home (hinge.py) reports the width beside every verdict
+and writes the standing warning naming the 5,640 width-one
+assignments; the tool is authored, and its first run is pending
+a named execution block recorded in the commissioning record —
+until that run, no per-verdict width table exists in the store.
 
 The registered flip test — whether the narrowest decile of
 widths holds at least half the verdict flips observed across the
