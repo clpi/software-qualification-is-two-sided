@@ -194,10 +194,10 @@ def boundary (q : Config → Bool) (n : Nat) (x : Config) : Prop :=
   q x = true ∧ ∃ y ∈ space n, q y = false ∧ dist x y = 1
 
 /-- A failing configuration of the space exists. -/
-def hasfail (q : Config → Bool) (n : Nat) : Prop :=
+def fails (q : Config → Bool) (n : Nat) : Prop :=
   ∃ y ∈ space n, q y = false
 
-theorem nottrue {q : Config → Bool} {y : Config} (h : (!q y) = true) :
+theorem negation {q : Config → Bool} {y : Config} (h : (!q y) = true) :
     q y = false := by
   cases hq : q y with
   | false => rfl
@@ -206,7 +206,7 @@ theorem nottrue {q : Config → Bool} {y : Config} (h : (!q y) = true) :
 /-- A qualified configuration's width is at least one: the only
     configuration at distance zero from x is x itself, and x
     qualifies, so no failing configuration sits at distance zero. -/
-theorem widthpos {q : Config → Bool} {n : Nat} {x : Config}
+theorem positive {q : Config → Bool} {n : Nat} {x : Config}
     (hx : x ∈ space n) (hq : q x = true) : 1 ≤ width q n x := by
   have hxlen : x.length = n := memspace.mp hx
   unfold width
@@ -214,7 +214,7 @@ theorem widthpos {q : Config → Bool} {n : Nat} {x : Config}
   · intro v hv
     simp only [List.mem_map, List.mem_filter] at hv
     rcases hv with ⟨z, ⟨hz, hqz⟩, rfl⟩
-    have hqzf : q z = false := nottrue hqz
+    have hqzf : q z = false := negation hqz
     rcases Nat.eq_zero_or_pos (dist x z) with h0 | hpos
     · have hxz : x = z := distzero (by rw [hxlen, memspace.mp hz]) h0
       rw [← hxz, hq] at hqzf
@@ -223,7 +223,7 @@ theorem widthpos {q : Config → Bool} {n : Nat} {x : Config}
   · omega
 
 theorem rim {q : Config → Bool} {n : Nat} {x : Config}
-    (hx : x ∈ space n) (hq : q x = true) (hf : hasfail q n) :
+    (hx : x ∈ space n) (hq : q x = true) (hf : fails q n) :
     width q n x = 1 ↔ boundary q n x := by
   have hxlen : x.length = n := memspace.mp hx
   constructor
@@ -246,7 +246,7 @@ theorem rim {q : Config → Bool} {n : Nat} {x : Config}
       · exact h
     simp only [List.mem_map, List.mem_filter] at hmem
     rcases hmem with ⟨y, ⟨hy, hqy⟩, hdist⟩
-    exact ⟨hq, y, hy, nottrue hqy, by rw [hdist, hw]⟩
+    exact ⟨hq, y, hy, negation hqy, by rw [hdist, hw]⟩
   · rintro ⟨_, y, hy, hqy, hdist⟩
     have hle : width q n x ≤ 1 := by
       have h2 := foldrminle (s := n + 1)
@@ -255,7 +255,7 @@ theorem rim {q : Config → Bool} {n : Nat} {x : Config}
           simp only [List.mem_map, List.mem_filter]
           exact ⟨y, ⟨hy, by simp [hqy]⟩, rfl⟩)
       rwa [hdist] at h2
-    have hge : 1 ≤ width q n x := widthpos hx hq
+    have hge : 1 ≤ width q n x := positive hx hq
     omega
 
 /-- The margin form: width minus one is zero exactly at the
@@ -264,9 +264,9 @@ theorem rim {q : Config → Bool} {n : Nat} {x : Config}
     claim (a distance) and its margin (the distance minus one)
     kept apart. -/
 theorem margin {q : Config → Bool} {n : Nat} {x : Config}
-    (hx : x ∈ space n) (hq : q x = true) (hf : hasfail q n) :
+    (hx : x ∈ space n) (hq : q x = true) (hf : fails q n) :
     width q n x - 1 = 0 ↔ boundary q n x := by
-  have hge : 1 ≤ width q n x := widthpos hx hq
+  have hge : 1 ≤ width q n x := positive hx hq
   constructor
   · intro h
     exact (rim hx hq hf).mp (by omega)
